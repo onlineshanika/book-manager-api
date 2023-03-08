@@ -1,5 +1,6 @@
 package com.techreturners.bookmanager.service;
 
+import com.techreturners.bookmanager.exception.BookNotFoundException;
 import com.techreturners.bookmanager.model.Book;
 import com.techreturners.bookmanager.model.Genre;
 
@@ -76,7 +77,11 @@ public class BookManagerServiceTests {
         when(mockBookManagerRepository.findById(bookId)).thenReturn(Optional.of(book));
         when(mockBookManagerRepository.save(book)).thenReturn(book);
 
-        bookManagerServiceImpl.updateBookById(bookId, book);
+        try {
+            bookManagerServiceImpl.updateBookById(bookId, book);
+        } catch (BookNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         verify(mockBookManagerRepository, times(1)).save(book);
     }

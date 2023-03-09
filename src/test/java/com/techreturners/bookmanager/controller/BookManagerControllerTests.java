@@ -1,6 +1,8 @@
 package com.techreturners.bookmanager.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.techreturners.bookmanager.exception.BookAlreadyExistsException;
+import com.techreturners.bookmanager.exception.BookNotFoundException;
 import com.techreturners.bookmanager.model.Book;
 import com.techreturners.bookmanager.model.Genre;
 import com.techreturners.bookmanager.service.BookManagerServiceImpl;
@@ -79,7 +81,7 @@ public class BookManagerControllerTests {
     }
 
     @Test
-    public void testPostMappingAddABook() throws Exception {
+    public void testPostMappingAddABook() throws Exception, BookAlreadyExistsException {
 
         Book book = new Book(4L, "Book Four", "This is the description for Book Four", "Person Four", Genre.Fantasy);
 
@@ -96,7 +98,7 @@ public class BookManagerControllerTests {
 
     //User Story 4 - Update Book By Id Solution
     @Test
-    public void testPutMappingUpdateABook() throws Exception {
+    public void testPutMappingUpdateABook() throws Exception, BookNotFoundException {
 
         Book book = new Book(4L, "Fabulous Four", "This is the description for the Fabulous Four", "Person Four", Genre.Fantasy);
 
@@ -111,7 +113,7 @@ public class BookManagerControllerTests {
 
 
     @Test
-    public void testDeleteMappingUpdateABook() throws Exception {
+    public void testDeleteMappingUpdateABook() throws Exception, BookNotFoundException {
 
         Book book = new Book(4L, "Fabulous Four", "This is the description for the Fabulous Four", "Person Four", Genre.Fantasy);
 
@@ -125,7 +127,7 @@ public class BookManagerControllerTests {
     }
 
     @Test
-    public void testDeleteMappingDeleteABookExceptionFlow() throws Exception {
+    public void testDeleteMappingDeleteABookExceptionFlow() throws Exception, BookNotFoundException {
 
         Book book = new Book(5L, "Fabulous Four", "This is the description for the Fabulous Four", "Person Four", Genre.Fantasy);
 

@@ -1,5 +1,6 @@
 package com.techreturners.bookmanager.service;
 
+import com.techreturners.bookmanager.exception.BookAlreadyExistsException;
 import com.techreturners.bookmanager.exception.BookNotFoundException;
 import com.techreturners.bookmanager.model.Book;
 import com.techreturners.bookmanager.model.Genre;
@@ -27,7 +28,7 @@ public class BookManagerServiceTests {
     private BookManagerServiceImpl bookManagerServiceImpl;
 
     @Test
-    public void testGetAllBooksReturnsListOfBooks() {
+    public void testGetAllBooksReturnsListOfBooks()throws BookAlreadyExistsException {
 
         List<Book> books = new ArrayList<>();
         books.add(new Book(1L, "Book One", "This is the description for Book One", "Person One", Genre.Education));
@@ -43,7 +44,7 @@ public class BookManagerServiceTests {
     }
 
     @Test
-    public void testAddABook() {
+    public void testAddABook() throws BookAlreadyExistsException {
 
         var book = new Book(4L, "Book Four", "This is the description for Book Four", "Person Four", Genre.Fantasy);
 
@@ -84,6 +85,26 @@ public class BookManagerServiceTests {
         }
 
         verify(mockBookManagerRepository, times(1)).save(book);
+    }
+
+    //User Story 5 - Delete Book By Id Solution
+    @Test
+    public void testDeleteBookById() {
+
+        Long bookId = 5L;
+        var book = new Book(5L, "Book Five", "This is the description for Book Five", "Person Five", Genre.Fantasy);
+
+        when(mockBookManagerRepository.findById(bookId)).thenReturn(Optional.of(book));
+        when(mockBookManagerRepository.save(book)).thenReturn(book);
+
+        try {
+            bookManagerServiceImpl.deleteBookById(bookId);
+
+        } catch (BookNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
+        assertThat(Boolean.FALSE).isEqualTo(bookManagerServiceImpl.existsByBookId(bookId));
     }
 
 }

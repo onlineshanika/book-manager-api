@@ -1,21 +1,28 @@
 package com.techreturners.bookmanager.service;
 
+import com.techreturners.bookmanager.exception.BookAlreadyExistsException;
 import com.techreturners.bookmanager.exception.BookNotFoundException;
 import com.techreturners.bookmanager.model.Book;
 import com.techreturners.bookmanager.repository.BookManagerRepository;
-import org.springframework.aop.ThrowsAdvice;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@EnableTransactionManagement
 public class BookManagerServiceImpl implements BookManagerService {
 
     @Autowired
     BookManagerRepository bookManagerRepository;
+
 
     @Override
     public List<Book> getAllBooks() {
@@ -25,9 +32,15 @@ public class BookManagerServiceImpl implements BookManagerService {
     }
 
     @Override
-    public Book insertBook(Book book) {
-        return bookManagerRepository.save(book);
-    }
+    public Book insertBook(Book book) throws BookAlreadyExistsException {
+
+        if(bookManagerRepository.findByTitle(book.getTitle()).isEmpty()){
+            return bookManagerRepository.save(book);
+        }else {
+            throw new BookAlreadyExistsException("Book title already exists .Please check the book title ");
+        }
+
+     }
 
     @Override
     public Book getBookById(Long id) {
@@ -53,6 +66,7 @@ public class BookManagerServiceImpl implements BookManagerService {
     }
 
     @Override
+    @Transactional
     public void deleteBookById(Long bookId) throws BookNotFoundException {
         Optional<Book> retrievedBook = bookManagerRepository.findById(bookId);
         if (retrievedBook.isPresent()) {
@@ -61,5 +75,11 @@ public class BookManagerServiceImpl implements BookManagerService {
             throw new BookNotFoundException("Book is not found for delete .Please check the book Id");
         }
 
+    }
+
+
+    @Override
+    public Boolean existsByBookId(Long id) {
+        return bookManagerRepository.existsById(id);
     }
 }

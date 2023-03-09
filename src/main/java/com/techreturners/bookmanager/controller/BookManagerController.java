@@ -1,6 +1,7 @@
 package com.techreturners.bookmanager.controller;
 
 import com.techreturners.bookmanager.dto.Error;
+import com.techreturners.bookmanager.exception.BookAlreadyExistsException;
 import com.techreturners.bookmanager.exception.BookNotFoundException;
 import com.techreturners.bookmanager.model.Book;
 import com.techreturners.bookmanager.service.BookManagerService;
@@ -32,8 +33,14 @@ public class BookManagerController {
     }
 
     @PostMapping
-    public ResponseEntity<Book> addBook(@RequestBody Book book) {
-        Book newBook = bookManagerService.insertBook(book);
+    public ResponseEntity<?> addBook(@RequestBody Book book) {
+        Book newBook = null;
+        try {
+            newBook = bookManagerService.insertBook(book);
+        } catch (BookAlreadyExistsException e) {
+            Error error = new Error(e.getMessage(),new Date());
+            return new ResponseEntity<>( error,HttpStatus.BAD_REQUEST);
+        }
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("book", "/api/v1/book/" + newBook.getId().toString());
         return new ResponseEntity<>(newBook, httpHeaders, HttpStatus.CREATED);
